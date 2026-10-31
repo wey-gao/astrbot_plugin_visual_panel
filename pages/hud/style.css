@@ -1,0 +1,220 @@
+/* ===== Plugin Status HUD v3 — 环形 ===== */
+:root{
+  --c1:#00f0ff; --c1d:rgba(0,240,255,.18);
+  --c2:#22ff88; --c3:#ff2b4e;
+  --tx:#8fb6d8; --dim:rgba(143,182,216,.45);
+  --bg:#050810; --bg2:#0a1220;
+  --edge:rgba(140,180,220,.16);
+  --a05:rgba(0,240,255,.05); --a10:rgba(0,240,255,.10); --a16:rgba(0,240,255,.16);
+  --a26:rgba(0,240,255,.26); --a40:rgba(0,240,255,.40); --a60:rgba(0,240,255,.60);
+  --ok45:rgba(34,255,136,.45); --ok55:rgba(34,255,136,.55);
+  --bad45:rgba(255,43,78,.45); --bad55:rgba(255,43,78,.55);
+  --u:1;
+}
+html[data-theme="violet"]{
+  --c1:#b06bff; --c1d:rgba(176,107,255,.18);
+  --c2:#5fe3ff; --c3:#ff4d7d;
+  --tx:#b3a6d8; --dim:rgba(179,166,216,.45);
+  --bg:#06040f; --bg2:#120a26;
+  --edge:rgba(176,140,255,.18);
+  --a05:rgba(176,107,255,.05); --a10:rgba(176,107,255,.10); --a16:rgba(176,107,255,.16);
+  --a26:rgba(176,107,255,.26); --a40:rgba(176,107,255,.40); --a60:rgba(176,107,255,.60);
+  --ok45:rgba(95,227,255,.45); --ok55:rgba(95,227,255,.55);
+  --bad45:rgba(255,77,125,.45); --bad55:rgba(255,77,125,.55);
+}
+html[data-theme="mint"]{
+  --c1:#3cffb0; --c1d:rgba(60,255,176,.18);
+  --c2:#9cffe0; --c3:#ff5c5c;
+  --tx:#8fd8bd; --dim:rgba(143,216,189,.45);
+  --bg:#03100c; --bg2:#062018;
+  --edge:rgba(120,255,200,.16);
+  --a05:rgba(60,255,176,.05); --a10:rgba(60,255,176,.10); --a16:rgba(60,255,176,.16);
+  --a26:rgba(60,255,176,.26); --a40:rgba(60,255,176,.40); --a60:rgba(60,255,176,.60);
+  --ok45:rgba(156,255,224,.45); --ok55:rgba(156,255,224,.55);
+  --bad45:rgba(255,92,92,.45); --bad55:rgba(255,92,92,.55);
+}
+html[data-theme="amber"]{
+  --c1:#ffb020; --c1d:rgba(255,176,32,.18);
+  --c2:#ffe680; --c3:#ff4d3d;
+  --tx:#d8bc8f; --dim:rgba(216,188,143,.45);
+  --bg:#0b0703; --bg2:#1d1405;
+  --edge:rgba(255,190,110,.16);
+  --a05:rgba(255,176,32,.05); --a10:rgba(255,176,32,.10); --a16:rgba(255,176,32,.16);
+  --a26:rgba(255,176,32,.26); --a40:rgba(255,176,32,.40); --a60:rgba(255,176,32,.60);
+  --ok45:rgba(255,230,128,.45); --ok55:rgba(255,230,128,.55);
+  --bad45:rgba(255,77,61,.45); --bad55:rgba(255,77,61,.55);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(900px 620px at 50% 46%, var(--a10), transparent 70%),
+    var(--bg);
+  color:var(--tx);
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-weight:300;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  overflow:hidden;
+}
+
+.app{
+  height:100vh;display:flex;flex-direction:column;
+  padding:14px 22px 12px;gap:10px;
+}
+
+/* ---------- 顶栏 ---------- */
+.bar{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;
+  position:relative;z-index:30}
+.brand{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.18em;color:var(--dim)}
+.brand .mark{width:7px;height:7px;border-radius:50%;background:var(--c1);
+  box-shadow:0 0 10px var(--c1);animation:blink 2.4s ease-in-out infinite}
+.brand .bn{color:var(--c1);font-weight:700;letter-spacing:.06em}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+.tools{display:flex;gap:8px}
+.tool{
+  background:rgba(255,255,255,.02);border:1px solid var(--edge);
+  color:var(--tx);font:inherit;font-size:12px;line-height:1;
+  padding:8px 12px;border-radius:6px;cursor:pointer;min-width:38px;
+  display:inline-flex;align-items:center;gap:6px;justify-content:center;
+  transition:color .2s,border-color .2s,background .2s;
+}
+.tool:hover{color:var(--c1);border-color:var(--c1);background:var(--c1d)}
+.tool.wide{width:100%;margin-top:12px;padding:9px}
+
+/* ---------- 舞台 ---------- */
+.stage{
+  position:relative;flex:0 0 auto;
+  width:min(92vmin, 92vh, 780px);height:min(92vmin, 92vh, 780px);
+  margin:auto;--u:1;
+}
+.links{position:absolute;inset:0;width:100%;height:100%;z-index:0;overflow:visible}
+.links line{
+  stroke:var(--c1);stroke-width:1;opacity:.09;
+  vector-effect:non-scaling-stroke;
+  transition:opacity .35s,stroke .35s;
+}
+.links line.hot{opacity:.5}
+.links line.ok{stroke:var(--c2);opacity:.32}
+.links line.err{stroke:var(--c3);opacity:.45}
+.links line.alive{stroke:var(--c1);opacity:.22}
+
+/* ---------- 中心 ---------- */
+.core{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:calc(150px * var(--u));height:calc(150px * var(--u));
+  border-radius:50%;z-index:3;cursor:default;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:
+    radial-gradient(circle at 50% 40%, var(--a16), transparent 66%),
+    rgba(4,8,14,.86);
+  border:1px solid var(--a40);
+  box-shadow:0 0 26px var(--a26), inset 0 0 30px var(--a10);
+  transition:box-shadow .4s,border-color .4s;
+}
+.core::before{
+  content:"";position:absolute;inset:-9px;border-radius:50%;
+  border:1px dashed var(--a26);
+  animation:spin 24s linear infinite;
+}
+.core-ico{font-size:calc(30px * var(--u));color:var(--c1);
+  filter:drop-shadow(0 0 10px var(--a60));
+  transition:filter .3s,color .3s}
+.core-name{font-size:11px;letter-spacing:.1em;color:var(--tx)}
+.core-num{font-size:15px;font-weight:700;color:var(--c1)}
+.core.is-running::before{border-color:var(--a60);animation-duration:4s}
+.core.is-running .core-ico{animation:breathe 1.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.1);opacity:1}}
+.core.is-ok{border-color:var(--ok55)}
+.core.is-ok .core-ico{color:var(--c2)}
+
+/* ---------- 环形节点 ---------- */
+.nodes{position:absolute;inset:0;z-index:2}
+.node{
+  position:absolute;transform:translate(-50%,-50%);
+  width:calc(var(--s) * var(--u));height:calc(var(--s) * var(--u));
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 36%, rgba(255,255,255,.045), rgba(4,8,14,.94) 68%);
+  border:1px solid var(--edge);
+  cursor:pointer;
+  transition:left .75s cubic-bezier(.2,.85,.25,1), top .75s cubic-bezier(.2,.85,.25,1),
+             width .4s,height .4s,border-color .3s,box-shadow .3s,background .3s;
+  will-change:left,top;
+}
+.node .ico{
+  font-size:calc(var(--s) * .36);
+  color:var(--c1);opacity:.5;
+  transition:opacity .25s,color .25s,filter .25s;
+  pointer-events:none;
+}
+.node .ico .emoji-fb{font-size:calc(var(--s) * .34);line-height:1}
+.node .nm{
+  position:absolute;top:calc(100% + 5px);left:50%;transform:translateX(-50%);
+  font-size:calc(10px * var(--u));letter-spacing:.04em;color:var(--dim);
+  white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;
+  pointer-events:none;transition:color .25s;
+}
+.node .dot{
+  position:absolute;right:6%;top:6%;width:calc(7px * var(--u));height:calc(7px * var(--u));
+  border-radius:50%;background:var(--dim);opacity:.5;
+}
+.node:hover{border-color:var(--c1);background:var(--a05)}
+.node:hover .ico{opacity:1;filter:drop-shadow(0 0 10px var(--c1))}
+.node:hover .nm{color:var(--c1)}
+
+.node.is-running{border-color:var(--a60);
+  box-shadow:0 0 18px var(--a26), inset 0 0 18px var(--a10)}
+.node.is-running .ico{opacity:1;animation:breathe 1.5s ease-in-out infinite}
+.node.is-running .dot{background:var(--c1);opacity:1;box-shadow:0 0 8px var(--c1);
+  animation:blink 1s ease-in-out infinite}
+
+.node.is-ok{border-color:var(--ok45)}
+.node.is-ok .ico{color:var(--c2);opacity:.95}
+.node.is-ok .dot{background:var(--c2);opacity:1;box-shadow:0 0 8px var(--c2)}
+
+.node.is-alive{border-color:var(--a40);
+  box-shadow:0 0 12px var(--a16), inset 0 0 14px var(--a10)}
+.node.is-alive .ico{opacity:1;color:var(--c1);animation:alivePulse 3.6s ease-in-out infinite}
+.node.is-alive .dot{background:var(--c1);opacity:1;box-shadow:0 0 7px var(--c1);animation:blink 3.6s ease-in-out infinite}
+.node.is-alive .nm{color:var(--c1);opacity:.75}
+@keyframes alivePulse{0%,100%{opacity:.72;filter:drop-shadow(0 0 3px var(--a26))}50%{opacity:1;filter:drop-shadow(0 0 9px var(--a60))}}
+
+.node.is-fail{border-color:var(--bad55)}
+.node.is-fail .ico{color:var(--c3);opacity:.95}
+.node.is-fail .dot{background:var(--c3);opacity:1;box-shadow:0 0 8px var(--c3)}
+
+.node.is-self{border-color:var(--a60);
+  box-shadow:0 0 16px var(--a26)}
+.node.is-self .ico{opacity:1;color:var(--c1)}
+
+.node.enter{animation:nodeIn .5s cubic-bezier(.2,.85,.25,1) both}
+@keyframes nodeIn{from{opacity:0;transform:translate(-50%,-50%) scale(.72)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- 底栏 ---------- */
+.foot{flex:0 0 auto;display:flex;align-items:center;gap:10px;
+  font-size:11px;color:var(--dim);border-top:1px solid var(--edge);padding-top:8px;
+  overflow:hidden;white-space:nowrap}
+.ftag{color:var(--c1);letter-spacing:.14em;font-size:10px}
+
+/* ---------- 弹窗 ---------- */
+.modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+  background:rgba(2,5,10,.78);backdrop-filter:blur(3px)}
+.modal.hidden{display:none}
+.modal-box{width:340px;padding:22px;border-radius:10px;
+  background:linear-gradient(180deg, var(--bg2), var(--bg));
+  border:1px solid var(--edge);
+  box-shadow:0 0 40px rgba(0,0,0,.6);
+  text-align:center;animation:boxIn .22s ease both}
+@keyframes boxIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.modal-icon{font-size:44px;color:var(--c1);cursor:pointer;
+  filter:drop-shadow(0 0 12px var(--a40))}
+.modal-name{margin-top:10px;font-size:14px;color:#dff;letter-spacing:.06em}
+.modal-meta{display:grid;grid-template-columns:56px 1fr;gap:6px 10px;
+  margin-top:14px;text-align:left;font-size:11.5px}
+.modal-meta dt{color:var(--c1);opacity:.8}
+.modal-meta dd{color:var(--tx);word-break:break-all}
+.modal-tip{margin-top:12px;font-size:10.5px;color:var(--dim)}

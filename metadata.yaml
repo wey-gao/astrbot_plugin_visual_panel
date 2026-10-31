@@ -1,0 +1,10 @@
+name: PluginVisualPanel
+display_name: 插件状态 HUD
+desc: 深空科幻 HUD 风格的插件运行状态仪表盘，展示已加载插件与运行进度
+short_desc: 插件运行状态仪表盘
+version: v1.0.0
+author: 大肥鱼
+astrbot_version: ">=4.25.3"
+pages:
+  - name: hud
+    title: 插件状态 HUD
